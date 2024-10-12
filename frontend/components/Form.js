@@ -3,16 +3,16 @@ import * as Yup from 'yup'
 
 // 👇 Here are the validation errors you will use with Yup.
 const validationErrors = {
-  nameTooShort: 'name must be at least 3 characters',
-  nameTooLong: 'name must be at most 20 characters',
+  fullNameTooShort: 'full name must be at least 3 characters',
+  fullNameTooLong: 'full name must be at most 20 characters',
   sizeIncorrect: 'size must be S or M or L'
 }
 
 // 👇 Here you will create your schema.
 const validationSchema = Yup.object({
-  name: Yup.string()
-    .min(3, validationErrors.nameTooShort)
-    .max(20, validationErrors.nameTooLong)
+  fullName: Yup.string()
+    .min(3, validationErrors.fullNameTooShort)
+    .max(20, validationErrors.fullNameTooLong)
     .required('Full name is required'),
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
@@ -36,7 +36,7 @@ const sizeMapping = {
 
 export default function Form() {
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     size: '',
     toppings: []
   });
@@ -64,7 +64,7 @@ export default function Form() {
   }, [formData]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { fullName, value, type, checked } = e.target;
     if (type === 'checkbox') {
       setFormData((prevData) => {
         const updatedToppings = checked
@@ -73,7 +73,7 @@ export default function Form() {
         return { ...prevData, toppings: updatedToppings };
       });
     } else {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
+      setFormData((prevData) => ({ ...prevData, [fullName]: value }));
     }
   };
 
@@ -85,9 +85,9 @@ const handleSubmit = (e) => {
       toppings.find(topping => topping.topping_id === toppingId).text
     );
     setFormStatus('success');
-    setSubmittedData({ name: formData.name, size: formData.size, toppings: selectedToppings });
+    setSubmittedData({ fullName: formData.fullName, size: formData.size, toppings: selectedToppings });
     setFormData({
-      name: '',
+      fullName: '',
       size: '',
       toppings: []
     });
@@ -103,7 +103,7 @@ const handleSubmit = (e) => {
       <h2>Order Your Pizza</h2>
       {formStatus === 'success' && submittedData && (
         <div className='success'>
-        Thank you for your order, {submittedData.name}! Your {sizeMapping[submittedData.size]} pizza {submittedData.toppings.length === 0
+        Thank you for your order, {submittedData.fullName}! Your {sizeMapping[submittedData.size]} pizza {submittedData.toppings.length === 0
       ? ' with no toppings '
       : ` with ${submittedData.toppings.length} ${submittedData.toppings.length > 1 ? 'toppings ' : 'topping '}`} 
     is on the way.
@@ -116,17 +116,10 @@ const handleSubmit = (e) => {
 
       <div className="input-group">
         <div>
-          <label htmlFor="name">Full Name</label><br />
-          <input
-            placeholder="Type full name"
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-          />
+          <label htmlFor="fullName">Full Name</label><br />
+          <input placeholder="Type full name" id="fullName" type="text" />
         </div>
-        {errors.name && <div className='error'>{errors.name}</div>}
+        {true && <div className='error'>Bad value</div>}
       </div>
 
       <div className="input-group">
