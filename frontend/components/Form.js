@@ -75,15 +75,27 @@ export default function Form() {
     if (isValid) {
       console.log(formData);
       setFormStatus('success');
+      setFormData({
+        fullName: '',
+        size: '',
+        toppings: []
+      });
     } else {
       setFormStatus('failure');
     }
   };
+  
+  
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Order Your Pizza</h2>
-      {formStatus === 'success' && <div className='success'>Thank you for your order!</div>}
+      {formStatus === 'success' && (
+  <div className='success'>
+    Thank you for your order, {formData.fullName}!
+  </div>
+)}
+
       {formStatus === 'failure' && <div className='failure'>Something went wrong</div>}
 
       <div className="input-group">
