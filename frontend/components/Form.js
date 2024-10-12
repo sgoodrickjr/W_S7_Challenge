@@ -34,6 +34,7 @@ export default function Form() {
     size: '',
     toppings: []
   });
+  const [submittedName, setSubmittedName] = useState('');
   const [errors, setErrors] = useState({});
   const [formStatus, setFormStatus] = useState(null);
   const [isValid, setIsValid] = useState(false);
@@ -70,20 +71,21 @@ export default function Form() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isValid) {
-      console.log(formData);
-      setFormStatus('success');
-      setFormData({
-        fullName: '',
-        size: '',
-        toppings: []
-      });
-    } else {
-      setFormStatus('failure');
-    }
-  };
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (isValid) {
+    console.log(formData);
+    setFormStatus('success');
+    setSubmittedName(formData.fullName);
+    setFormData({
+      fullName: '',
+      size: '',
+      toppings: []
+    });
+  } else {
+    setFormStatus('failure');
+  }
+};
   
   
 
@@ -92,9 +94,10 @@ export default function Form() {
       <h2>Order Your Pizza</h2>
       {formStatus === 'success' && (
   <div className='success'>
-    Thank you for your order, {formData.fullName}!
+    Thank you for your order, {submittedName}!
   </div>
 )}
+
 
       {formStatus === 'failure' && <div className='failure'>Something went wrong</div>}
 
