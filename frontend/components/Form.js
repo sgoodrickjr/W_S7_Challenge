@@ -28,6 +28,12 @@ const toppings = [
   { topping_id: '5', text: 'Ham' },
 ]
 
+const sizeMapping = {
+  S: 'small',
+  M: 'medium',
+  L: 'large'
+};
+
 export default function Form() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -75,8 +81,11 @@ const handleSubmit = (e) => {
   e.preventDefault();
   if (isValid) {
     console.log(formData);
+    const selectedToppings = formData.toppings.map(toppingId =>
+      toppings.find(topping => topping.topping_id === toppingId).text
+    );
     setFormStatus('success');
-    setSubmittedData({ fullName: formData.fullName, size: formData.size });
+    setSubmittedData({ fullName: formData.fullName, size: formData.size, toppings: selectedToppings });
     setFormData({
       fullName: '',
       size: '',
@@ -94,7 +103,8 @@ const handleSubmit = (e) => {
       <h2>Order Your Pizza</h2>
       {formStatus === 'success' && submittedData && (
         <div className='success'>
-          Thank you for your order, {submittedData.fullName}! Your {submittedData.size.toLowerCase()} pizza.
+        Thank you for your order, {submittedData.fullName}! Your {sizeMapping[submittedData.size]} pizza with {submittedData.toppings.length} topping is on the way.
+
         </div>
       )}
 
