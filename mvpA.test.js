@@ -22,7 +22,7 @@ import server from './backend/mock-server'
 
 jest.setTimeout(750) // default 5000 too long for Codegrade
 
-const waitForOptions = { timeout: 750 }
+const waitForOptions = { timeout: 150 }
 const queryOptions = { exact: false }
 
 const renderApp = ui => {
