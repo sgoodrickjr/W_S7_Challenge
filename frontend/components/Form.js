@@ -103,7 +103,10 @@ const handleSubmit = (e) => {
       <h2>Order Your Pizza</h2>
       {formStatus === 'success' && submittedData && (
         <div className='success'>
-        Thank you for your order, {submittedData.fullName}! Your {sizeMapping[submittedData.size]} pizza with {submittedData.toppings.length} {submittedData.toppings.length > 1 ? 'toppings': 'topping'} is on the way.
+        Thank you for your order, {submittedData.fullName}! Your {sizeMapping[submittedData.size]} pizza {submittedData.toppings.length === 0
+      ? ' with no toppings '
+      : ` with ${submittedData.toppings.length} ${submittedData.toppings.length > 1 ? 'toppings ' : 'topping '}`} 
+    is on the way.
 
         </div>
       )}
