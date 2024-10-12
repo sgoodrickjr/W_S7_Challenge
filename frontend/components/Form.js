@@ -29,9 +29,6 @@ const toppings = [
 ]
 
 export default function Form() {
-  useEffect(() => {
-    validate();
-  }, [formData]);
   const [formData, setFormData] = useState({
     fullName: '',
     size: '',
@@ -39,21 +36,25 @@ export default function Form() {
   });
   const [errors, setErrors] = useState({});
   const [formStatus, setFormStatus] = useState(null);
+  const [isValid, setIsValid] = useState(false);
 
-  const validate = () => {
-    try {
-      validationSchema.validateSync(formData, { abortEarly: false });
-      setErrors({});
-      return true;
-    } catch (validationErrors) {
-      const newErrors = {};
-      validationErrors.inner.forEach(err => {
-        newErrors[err.path] = err.message;
-      });
-      setErrors(newErrors);
-      return false;
-    }
-  };
+  useEffect(() => {
+    const validate = async () => {
+      try {
+        await validationSchema.validate(formData, { abortEarly: false });
+        setErrors({});
+        setIsValid(true);
+      } catch (validationErrors) {
+        const newErrors = {};
+        validationErrors.inner.forEach(err => {
+          newErrors[err.path] = err.message;
+        });
+        setErrors(newErrors);
+        setIsValid(false);
+      }
+    };
+    validate();
+  }, [formData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -71,7 +72,7 @@ export default function Form() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) {
+    if (isValid) {
       console.log(formData);
       setFormStatus('success');
     } else {
@@ -134,7 +135,7 @@ export default function Form() {
       </div>
 
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
-      <input type="submit" disabled={!validate()} />
+      <input type="submit" disabled={!isValid} />
     </form>
   )
 }

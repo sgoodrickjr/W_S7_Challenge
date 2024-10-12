@@ -8,7 +8,7 @@ function App() {
     <div id="app">
       <nav>
         {/* NavLinks here */}
-        <NavLink to="">Home</NavLink>
+        <NavLink to="/">Home</NavLink>
         <NavLink to="/order">Order</NavLink>
       </nav>
       {/* Route and Routes here */}
