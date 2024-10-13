@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import debounce from "lodash.debounce";
 
 // 👇 Here are the validation errors you will use with Yup.
 const validationErrors = {
@@ -42,9 +41,9 @@ export default function Form() {
   const [formStatus, setFormStatus] = useState(null);
   const [isValid, setIsValid] = useState(false);
 
-  const validate = debounce(async () => {
+  const validate = async (data) => {
     try {
-      await validationSchema.validate(formData, { abortEarly: false });
+      await validationSchema.validate(data, { abortEarly: false });
       setErrors({});
       setIsValid(true);
     } catch (validationErrors) {
@@ -55,66 +54,28 @@ export default function Form() {
       setErrors(newErrors);
       setIsValid(false);
     }
-  }, 300);
+  };
 
   useEffect(() => {
-    validate();
-    return () => validate.cancel();
+    validate(formData);
   }, [formData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (type === 'checkbox') {
-      setFormData((prevData) => ({
-        ...prevData,
-        toppings: checked
+      setFormData((prevData) => {
+        const updatedToppings = checked
           ? [...prevData.toppings, value]
-          : prevData.toppings.filter((topping) => topping !== value),
-      }));
+          : prevData.toppings.filter((topping) => topping !== value);
+        const newData = { ...prevData, toppings: updatedToppings };
+        validate(newData);
+        return newData;
+      });
     } else {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-      // Synchronous validation for fullName and size fields to ensure immediate error message
-      if (name === 'fullName') {
-        if (value.trim().length < 3) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            fullName: validationErrors.fullNameTooShort,
-          }));
-        } else if (value.trim().length > 20) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            fullName: validationErrors.fullNameTooLong,
-          }));
-        } else {
-          setErrors((prevErrors) => {
-            // eslint-disable-next-line no-unused-vars
-            const { fullName, ...restErrors } = prevErrors;
-            return restErrors;
-          });
-        }
-      }
-
-      if (name === 'size') {
-        if (!value) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            size: validationErrors.sizeRequired,
-          }));
-        } else if (!['S', 'M', 'L'].includes(value)) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            size: validationErrors.sizeIncorrect,
-          }));
-        } else {
-          setErrors((prevErrors) => {
-            // eslint-disable-next-line no-unused-vars
-            const { size, ...restErrors } = prevErrors;
-            return restErrors;
-          });
-        }
-      }
+      const newData = { ...formData, [name]: value };
+      setFormData(newData);
+      validate(newData);
     }
   };
 
