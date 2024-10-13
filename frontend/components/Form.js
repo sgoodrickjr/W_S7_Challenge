@@ -10,14 +10,15 @@ const validationErrors = {
   sizeRequired: "Size is required",
 };
 
-const validationSchema = Yup.object({
+const validationSchema = Yup.object().shape({
   fullName: Yup.string()
+    .trim()
     .min(3, validationErrors.fullNameTooShort)
     .max(20, validationErrors.fullNameTooLong)
-    .required('Full name is required'),
+    .required(validationErrors.fullNameRequired),
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
-    .required('Size is required')
+    .required(validationErrors.sizeRequired),
 });
 
 // Toppings array
@@ -65,44 +66,61 @@ export default function Form() {
   }, [formData]);
 
   const handleChange = async (e) => {
-    const { name, value, type, checked } = e.target;
-  
-    if (type === 'checkbox') {
-      setFormData((prevData) => ({
-        ...prevData,
-        toppings: checked
-          ? [...prevData.toppings, value]
-          : prevData.toppings.filter((topping) => topping !== value),
-      }));
-    } else {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-      
-      // Force validate the size field
-      if (name === 'size') {
-        try {
-          await validationSchema.validateAt(name, { [name]: value });
-          setErrors((prevErrors) => ({ ...prevErrors, size: undefined }));
-        } catch (err) {
-          setErrors((prevErrors) => ({ ...prevErrors, size: err.message }));
-        }
+  const { name, value, type, checked } = e.target;
+
+  if (type === 'checkbox') {
+    setFormData((prevData) => ({
+      ...prevData,
+      toppings: checked
+        ? [...prevData.toppings, value]
+        : prevData.toppings.filter((topping) => topping !== value),
+    }));
+  } else {
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    
+    // Force validate the size field
+    if (name === 'size') {
+      try {
+        await validationSchema.validateAt(name, { [name]: value });
+        setErrors((prevErrors) => ({ ...prevErrors, size: undefined }));
+      } catch (err) {
+        setErrors((prevErrors) => ({ ...prevErrors, size: err.message }));
       }
     }
-  };
-  
-  const handleSubmit = (e) => {
+  }
+};
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid) {
-      console.log(formData);
-      const selectedToppings = formData.toppings.map(toppingId =>
-        toppings.find(topping => topping.topping_id === toppingId).text
-      );
-      setFormStatus('success');
-      setSubmittedData({ fullName: formData.fullName, size: formData.size, toppings: selectedToppings });
-      setFormData({
-        fullName: '',
-        size: '',
-        toppings: []
-      });
+      try {
+        const response = await fetch('http://localhost:9009/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const result = await response.json();
+        console.log(result);
+
+        const selectedToppings = formData.toppings.map((toppingId) =>
+          toppings.find((topping) => topping.topping_id === toppingId).text
+        );
+
+        setFormStatus('success');
+        setSubmittedData({
+          fullName: formData.fullName,
+          size: formData.size,
+          toppings: selectedToppings,
+        });
+
+        setFormData({
+          fullName: '',
+          size: '',
+          toppings: [],
+        });
+      } catch (error) {
+        setFormStatus('failure');
+        console.error('Error submitting the form:', error);
+      }
     } else {
       setFormStatus('failure');
     }
@@ -120,7 +138,7 @@ export default function Form() {
           {submittedData.toppings.length === 0
             ? " with no toppings "
             : ` with ${submittedData.toppings.length} ${
-                submittedData.toppings.length > 1 ? "toppings " : "topping "
+                submittedData.toppings.length > 1 ? "toppings" : "topping"
               }`}
           is on the way.
         </div>
@@ -148,7 +166,8 @@ export default function Form() {
 
       <div className="input-group">
         <div>
-          <label htmlFor="size">Size</label><br />
+          <label htmlFor="size">Size</label>
+          <br />
           <select
             id="size"
             name="size"
@@ -161,7 +180,7 @@ export default function Form() {
             <option value="L">Large</option>
           </select>
         </div>
-        {errors.size && <div className='error'>{errors.size}</div>}
+        {errors.size && <div className="error">{errors.size}</div>}
       </div>
 
       <div className="input-group">
