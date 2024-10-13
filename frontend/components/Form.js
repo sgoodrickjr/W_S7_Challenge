@@ -149,7 +149,7 @@ export default function Form() {
           {submittedData.toppings.length === 0
             ? " with no toppings "
             : ` with ${submittedData.toppings.length} ${
-                submittedData.toppings.length > 1 ? "toppings" : "topping"
+                submittedData.toppings.length > 1 ? "toppings " : "topping "
               }`}
           is on the way.
         </div>
