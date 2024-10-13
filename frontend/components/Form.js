@@ -65,9 +65,9 @@ export default function Form() {
     validate();
   }, [formData]);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, type, checked } = e.target;
-
+  
     if (type === 'checkbox') {
       setFormData((prevData) => ({
         ...prevData,
@@ -77,20 +77,19 @@ export default function Form() {
       }));
     } else {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-      // Synchronous validation for size field to avoid delays
+      
+      // Force validate the size field
       if (name === 'size') {
-        const sizeError = value
-          ? !['S', 'M', 'L'].includes(value)
-            ? validationErrors.sizeIncorrect
-            : ''
-          : validationErrors.sizeRequired;
-
-        setErrors((prevErrors) => ({ ...prevErrors, size: sizeError }));
+        try {
+          await validationSchema.validateAt(name, { [name]: value });
+          setErrors((prevErrors) => ({ ...prevErrors, size: undefined }));
+        } catch (err) {
+          setErrors((prevErrors) => ({ ...prevErrors, size: err.message }));
+        }
       }
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid) {
