@@ -6,8 +6,7 @@ const validationErrors = {
   fullNameTooShort: "Full name must be at least 3 characters",
   fullNameTooLong: "Full name must be at most 20 characters",
   fullNameRequired: "Full name is required",
-  sizeIncorrect: "Size must be S, M, or L",
-  sizeRequired: "Size is required",
+  sizeIncorrect: "size must be S or M or L",
 };
 
 const validationSchema = Yup.object().shape({
