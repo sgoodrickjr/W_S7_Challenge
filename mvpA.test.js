@@ -244,7 +244,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
           expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument();
         }, waitForOptions);
       },
-      5000 // Set an extended timeout just for this test (5 seconds)
+      750 
     );    
   })
 })
