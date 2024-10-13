@@ -30,12 +30,6 @@ const toppings = [
   { topping_id: '5', text: 'Ham' },
 ];
 
-const sizeMapping = {
-  S: 'small',
-  M: 'medium',
-  L: 'large',
-};
-
 export default function Form() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -92,10 +86,10 @@ export default function Form() {
           }));
         } else {
           setErrors((prevErrors) => {
-            const {...restErrors } = prevErrors; // Remove the size property from errors
+            // eslint-disable-next-line no-unused-vars
+            const { size, ...restErrors } = prevErrors;
             return restErrors;
           });
-          
         }
       }
     }
@@ -145,7 +139,11 @@ export default function Form() {
       {formStatus === "success" && submittedData && (
         <div className="success">
           Thank you for your order, {submittedData.fullName}! Your{" "}
-          {sizeMapping[submittedData.size]} pizza{" "}
+          {submittedData.size === 'S'
+            ? "small"
+            : submittedData.size === 'M'
+            ? "medium"
+            : "large"} pizza{" "}
           {submittedData.toppings.length === 0
             ? " with no toppings "
             : ` with ${submittedData.toppings.length} ${

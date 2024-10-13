@@ -208,43 +208,39 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
       }, waitForOptions)
     })
-    test(
-      '[11] Validation of `size` renders correct error message',
-      async () => {
-        const validationError = 'size must be S or M or L';
-    
-        await waitFor(() => {
-          fireEvent.change(size, { target: { value: 'S' } });
-        }, waitForOptions);
-        await waitFor(() => {
-          expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument();
-        }, waitForOptions);
-    
-        await waitFor(() => {
-          fireEvent.change(size, { target: { value: '' } }); // BAD VALUE
-        }, waitForOptions);
-        await waitFor(() => screen.getByText(validationError, queryOptions), waitForOptions);
-    
-        await waitFor(() => {
-          fireEvent.change(size, { target: { value: 'M' } });
-        }, waitForOptions);
-        await waitFor(() => {
-          expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument();
-        }, waitForOptions);
-    
-        await waitFor(() => {
-          fireEvent.change(size, { target: { value: 'X' } }); // BAD VALUE
-        }, waitForOptions);
-        await waitFor(() => screen.getByText(validationError, queryOptions), waitForOptions);
-    
-        await waitFor(() => {
-          fireEvent.change(size, { target: { value: 'L' } });
-        }, waitForOptions);
-        await waitFor(() => {
-          expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument();
-        }, waitForOptions);
-      },
-      750 
-    );    
+    test('[11] Validation of `size` renders correct error message', async () => {
+      const validationError = 'size must be S or M or L'
+
+      await waitFor(() => {
+        fireEvent.change(size, { target: { value: 'S' } })
+      }, waitForOptions)
+      await waitFor(() => {
+        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
+      }, waitForOptions)
+
+      await waitFor(() => {
+        fireEvent.change(size, { target: { value: '' } }) // BAD VALUE
+      }, waitForOptions)
+      await waitFor(() => screen.getByText(validationError, queryOptions))
+
+      await waitFor(() => {
+        fireEvent.change(size, { target: { value: 'M' } })
+      }, waitForOptions)
+      await waitFor(() => {
+        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
+      }, waitForOptions)
+
+      await waitFor(() => {
+        fireEvent.change(size, { target: { value: 'X' } }) // BAD VALUE
+      }, waitForOptions)
+      await waitFor(() => screen.getByText(validationError, queryOptions))
+
+      await waitFor(() => {
+        fireEvent.change(size, { target: { value: 'L' } })
+      }, waitForOptions)
+      await waitFor(() => {
+        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
+      }, waitForOptions)
+    })
   })
 })
