@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
+import debounce from "lodash.debounce";
 
 // 👇 Here are the validation errors you will use with Yup.
 const validationErrors = {
@@ -41,22 +42,24 @@ export default function Form() {
   const [formStatus, setFormStatus] = useState(null);
   const [isValid, setIsValid] = useState(false);
 
+  const validate = debounce(async () => {
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+      setIsValid(true);
+    } catch (validationErrors) {
+      const newErrors = {};
+      validationErrors.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      setIsValid(false);
+    }
+  }, 300);
+
   useEffect(() => {
-    const validate = async () => {
-      try {
-        await validationSchema.validate(formData, { abortEarly: false });
-        setErrors({});
-        setIsValid(true);
-      } catch (validationErrors) {
-        const newErrors = {};
-        validationErrors.inner.forEach(err => {
-          newErrors[err.path] = err.message;
-        });
-        setErrors(newErrors);
-        setIsValid(false);
-      }
-    };
     validate();
+    return () => validate.cancel();
   }, [formData]);
 
   const handleChange = (e) => {
@@ -72,7 +75,27 @@ export default function Form() {
     } else {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
 
-      // Synchronous validation for size field to ensure immediate error message
+      // Synchronous validation for fullName and size fields to ensure immediate error message
+      if (name === 'fullName') {
+        if (value.trim().length < 3) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            fullName: validationErrors.fullNameTooShort,
+          }));
+        } else if (value.trim().length > 20) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            fullName: validationErrors.fullNameTooLong,
+          }));
+        } else {
+          setErrors((prevErrors) => {
+            // eslint-disable-next-line no-unused-vars
+            const { fullName, ...restErrors } = prevErrors;
+            return restErrors;
+          });
+        }
+      }
+
       if (name === 'size') {
         if (!value) {
           setErrors((prevErrors) => ({
@@ -87,7 +110,7 @@ export default function Form() {
         } else {
           setErrors((prevErrors) => {
             // eslint-disable-next-line no-unused-vars
-            const { size, ...restErrors } = prevErrors; // Remove the size property from errors
+            const { size, ...restErrors } = prevErrors;
             return restErrors;
           });
         }
