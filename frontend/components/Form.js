@@ -87,7 +87,7 @@ export default function Form() {
         } else {
           setErrors((prevErrors) => {
             // eslint-disable-next-line no-unused-vars
-            const { size, ...restErrors } = prevErrors;
+            const { size, ...restErrors } = prevErrors; // Remove the size property from errors
             return restErrors;
           });
         }
