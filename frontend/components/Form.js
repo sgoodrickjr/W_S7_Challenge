@@ -17,29 +17,29 @@ const validationSchema = Yup.object().shape({
     .max(20, validationErrors.fullNameTooLong)
     .required(validationErrors.fullNameRequired),
   size: Yup.string()
-    .oneOf(["S", "M", "L"], validationErrors.sizeIncorrect)
+    .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
     .required(validationErrors.sizeRequired),
 });
 
-// 👇 This array could help you construct your checkboxes using .map in the JSX.
+// Toppings array
 const toppings = [
-  { topping_id: "1", text: "Pepperoni" },
-  { topping_id: "2", text: "Green Peppers" },
-  { topping_id: "3", text: "Pineapple" },
-  { topping_id: "4", text: "Mushrooms" },
-  { topping_id: "5", text: "Ham" },
+  { topping_id: '1', text: 'Pepperoni' },
+  { topping_id: '2', text: 'Green Peppers' },
+  { topping_id: '3', text: 'Pineapple' },
+  { topping_id: '4', text: 'Mushrooms' },
+  { topping_id: '5', text: 'Ham' },
 ];
 
 const sizeMapping = {
-  S: "small",
-  M: "medium",
-  L: "large",
+  S: 'small',
+  M: 'medium',
+  L: 'large',
 };
 
 export default function Form() {
   const [formData, setFormData] = useState({
-    fullName: "",
-    size: "",
+    fullName: '',
+    size: '',
     toppings: [],
   });
   const [submittedData, setSubmittedData] = useState(null);
@@ -55,7 +55,7 @@ export default function Form() {
         setIsValid(true);
       } catch (validationErrors) {
         const newErrors = {};
-        validationErrors.inner.forEach((err) => {
+        validationErrors.inner.forEach(err => {
           newErrors[err.path] = err.message;
         });
         setErrors(newErrors);
@@ -68,7 +68,7 @@ export default function Form() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (type === "checkbox") {
+    if (type === 'checkbox') {
       setFormData((prevData) => ({
         ...prevData,
         toppings: checked
@@ -77,6 +77,17 @@ export default function Form() {
       }));
     } else {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+      // Synchronous validation for size field to avoid delays
+      if (name === 'size') {
+        const sizeError = value
+          ? !['S', 'M', 'L'].includes(value)
+            ? validationErrors.sizeIncorrect
+            : ''
+          : validationErrors.sizeRequired;
+
+        setErrors((prevErrors) => ({ ...prevErrors, size: sizeError }));
+      }
     }
   };
 
@@ -84,40 +95,39 @@ export default function Form() {
     e.preventDefault();
     if (isValid) {
       try {
-        const response = await fetch("http://localhost:9009/api/order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('http://localhost:9009/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
         });
         const result = await response.json();
         console.log(result);
 
-        const selectedToppings = formData.toppings.map(
-          (toppingId) =>
-            toppings.find((topping) => topping.topping_id === toppingId).text
+        const selectedToppings = formData.toppings.map((toppingId) =>
+          toppings.find((topping) => topping.topping_id === toppingId).text
         );
 
-        setFormStatus("success");
+        setFormStatus('success');
         setSubmittedData({
           fullName: formData.fullName,
           size: formData.size,
           toppings: selectedToppings,
         });
 
-        // Only reset the form if the submission is successful
         setFormData({
-          fullName: "",
-          size: "",
+          fullName: '',
+          size: '',
           toppings: [],
         });
       } catch (error) {
-        setFormStatus("failure");
-        console.error("Error submitting the form:", error);
+        setFormStatus('failure');
+        console.error('Error submitting the form:', error);
       }
     } else {
-      setFormStatus("failure");
+      setFormStatus('failure');
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit}>
