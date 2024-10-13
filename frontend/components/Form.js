@@ -65,30 +65,42 @@ export default function Form() {
     validate();
   }, [formData]);
 
-  const handleChange = async (e) => {
-  const { name, value, type, checked } = e.target;
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
 
-  if (type === 'checkbox') {
-    setFormData((prevData) => ({
-      ...prevData,
-      toppings: checked
-        ? [...prevData.toppings, value]
-        : prevData.toppings.filter((topping) => topping !== value),
-    }));
-  } else {
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-    
-    // Force validate the size field
-    if (name === 'size') {
-      try {
-        await validationSchema.validateAt(name, { [name]: value });
-        setErrors((prevErrors) => ({ ...prevErrors, size: undefined }));
-      } catch (err) {
-        setErrors((prevErrors) => ({ ...prevErrors, size: err.message }));
+    if (type === 'checkbox') {
+      setFormData((prevData) => ({
+        ...prevData,
+        toppings: checked
+          ? [...prevData.toppings, value]
+          : prevData.toppings.filter((topping) => topping !== value),
+      }));
+    } else {
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+      // Synchronous validation for size field to ensure immediate error message
+      if (name === 'size') {
+        if (!value) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            size: validationErrors.sizeRequired,
+          }));
+        } else if (!['S', 'M', 'L'].includes(value)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            size: validationErrors.sizeIncorrect,
+          }));
+        } else {
+          setErrors((prevErrors) => {
+            const {...restErrors } = prevErrors; // Remove the size property from errors
+            return restErrors;
+          });
+          
+        }
       }
     }
-  }
-};
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid) {
@@ -125,7 +137,6 @@ export default function Form() {
       setFormStatus('failure');
     }
   };
-
 
   return (
     <form onSubmit={handleSubmit}>
